@@ -31,66 +31,57 @@ def main():
             if roundStart:
                 print("=====ROUND",round+1,"=====")
                 print("\n")
-
                 revealedCards = reveal(deck, revealedCards, round)
-                if revealedCards:
-                    print(revealedCards)
-                    print("\n")
-                
+
                 circle = 0
                 roundStart = False
 
             if playerHands[currentPlayer]: # if player hasn't folded
+                
+                if revealedCards:
+                    print(revealedCards)
+                    print("\n")
+                
                 print(playerHands[currentPlayer])
 
                 if currentPlayer == bigBlindPlayer and firstBet:
-
-                    print("Player",bigBlindPlayer+1,"you start the bets with",BIG_BLIND_BET,"\n")
+                    print("Player",bigBlindPlayer+1,"you start the bets with",BIG_BLIND_BET)
                     playerBets[currentPlayer] += BIG_BLIND_BET
+                    playerCapitals[currentPlayer] -= BIG_BLIND_BET
                     firstBet = False
                     lead = bigBlindPlayer
-
                 else:
-
                     print("Current bet is",bet)
                     print("Player",currentPlayer+1,"you have betted",playerBets[currentPlayer])
                     print("Place your bet or -1 to fold")
                     playerBet = int(input())
-                    # INVALID BETS
+
                     while playerBets[currentPlayer] + playerBet < bet and playerBet != -1:
                         print("Player",currentPlayer+1,"place your bet or -1 to fold")
                         playerBet = int(input())
                     
-                    print("\n")
-
                     if playerBet == -1:
-                        fold(playerHands, playerCapitals, playerBets, currentPlayer)
+                        fold(playerHands, playerBets, currentPlayer)
                         foldPlayersNumber += 1
                     else:
                         playerBets[currentPlayer] += playerBet
+                        playerCapitals[currentPlayer] -= playerBet
                         pot += playerBet
 
                     if playerBets[currentPlayer] > bet:
                         bet = playerBets[currentPlayer]
-                        lead = currentPlayer # PLAYER WITH HIGHEST BET
-
+                        lead = currentPlayer
+                        
+                print("Money remaining:",playerCapitals[currentPlayer],"\n")
                 circle += 1
 
-            # IF ALL PLAYERS WHO HAVEN'T FOLDED HAVE BETTED THE SAME AND A FULL CIRCLE IS COMPLETED
-            if (
-                    playerBets.count(bet) == numberOfPlayers - foldPlayersNumber and
-                    lead == (currentPlayer + 1) % numberOfPlayers and
-                    circle >= numberOfPlayers - foldPlayersNumber
-                ):
-
+            if endRound(numberOfPlayers, playerBets, circle, lead):
                 round += 1
                 roundStart = True
                 lead = bigBlindPlayer
-                currentPlayer = bigBlindPlayer - 1 # bigBlindPlayer after increment
-
-            currentPlayer += 1
-            if currentPlayer == numberOfPlayers:
-                currentPlayer = 0
+                currentPlayer = bigBlindPlayer
+            else:
+                currentPlayer = (currentPlayer + 1) % numberOfPlayers
 
             # IF ALL BUT ONE FOLD, A NEW GAME STARTS
             if foldPlayersNumber == numberOfPlayers -1:
@@ -100,11 +91,12 @@ def main():
         for currentPlayer in range(numberOfPlayers):
             if playerHands[currentPlayer]:
                 calculatePower(playerHands[currentPlayer] + revealedCards)
-                playerCapitals[currentPlayer] -= playerBets[currentPlayer]
+                
         
-        print(pot)
         game += 1
-        bigBlindPlayer += 1
+        bigBlindPlayer = (bigBlindPlayer + 1) % numberOfPlayers
+
+
 
 def instantiateCapitals(numberOfPlayers):
     playerCapitals = []
@@ -167,12 +159,16 @@ def reveal(deck, revealed, round):
         revealed.append(deck.pop())
     return revealed
 
-def fold(playerHands, playerCapitals, playerBets, currentPlayer):
+def fold(playerHands, playerBets, currentPlayer):
     playerHands[currentPlayer] = []
-    playerCapitals[currentPlayer] -= playerBets[currentPlayer]
     playerBets[currentPlayer] = 0
 
-    return playerHands, playerCapitals, playerBets
+def endRound(numberOfPlayers, playerBets, circle, lead):
+    return  (
+                playerBets.count(bet) == numberOfPlayers - foldPlayersNumber and
+                lead == (currentPlayer + 1) % numberOfPlayers and
+                circle >= numberOfPlayers - foldPlayersNumber
+            )
 
 def calculatePower(allCards):
     print(allCards)
