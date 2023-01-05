@@ -44,10 +44,9 @@ def main():
                 
                 print(playerHands[currentPlayer])
 
-                if currentPlayer == bigBlindPlayer and firstBet:
+                if firstBet:
                     print("Player",bigBlindPlayer+1,"you start the bets with",BIG_BLIND_BET)
-                    playerBets[currentPlayer] += BIG_BLIND_BET
-                    playerCapitals[currentPlayer] -= BIG_BLIND_BET
+                    playerBet = BIG_BLIND_BET
                     firstBet = False
                     lead = bigBlindPlayer
                 else:
@@ -60,17 +59,17 @@ def main():
                         print("Player",currentPlayer+1,"place your bet or -1 to fold")
                         playerBet = int(input())
                     
-                    if playerBet == -1:
-                        fold(playerHands, playerBets, currentPlayer)
-                        foldPlayersNumber += 1
-                    else:
-                        playerBets[currentPlayer] += playerBet
-                        playerCapitals[currentPlayer] -= playerBet
-                        pot += playerBet
+                if playerBet == -1:
+                    fold(playerHands, playerBets, currentPlayer)
+                    foldPlayersNumber += 1
+                else:
+                    playerBets[currentPlayer] += playerBet
+                    playerCapitals[currentPlayer] -= playerBet
+                    pot += playerBet
 
-                    if playerBets[currentPlayer] > bet:
-                        bet = playerBets[currentPlayer]
-                        lead = currentPlayer
+                if playerBets[currentPlayer] > bet:
+                    bet = playerBets[currentPlayer]
+                    lead = currentPlayer
                         
                 print("Money remaining:",playerCapitals[currentPlayer],"\n")
                 circle += 1
@@ -135,9 +134,9 @@ def resetGame():
     global currentPlayer
     currentPlayer = bigBlindPlayer
     global bet
-    bet = BIG_BLIND_BET
+    bet = 0
     global pot
-    pot = BIG_BLIND_BET
+    pot = 0
     global round
     round = 0
     global firstBet
