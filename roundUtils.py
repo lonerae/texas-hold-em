@@ -24,5 +24,29 @@ def endRound(numberOfPlayers, foldPlayersNumber, bet, playerBets, circle, lead, 
                 circle >= numberOfPlayers - foldPlayersNumber
             )
 
+def giveValue(x):
+    if x[0] == 'J':
+        x[0] = 11
+    elif x[0] == 'Q':
+        x[0] = 12
+    elif x[0] == 'K':
+        x[0] = 13
+
+def compare(x,y):
+    return x[0]-y[0]
+
 def calculatePower(allCards):
-    print(allCards)
+    for card in allCards:
+        giveValue(card)
+
+    allCards = sorted(allCards)
+    allValues = []
+    for i in range (len(allCards)):
+        allValues.append([])
+        allValues[i] = allCards[i][0]
+    distinct = dict.fromkeys(set(allValues))
+    
+    for value in distinct.keys():
+        distinct[value] = allValues.count(value)
+    
+    print(distinct)
