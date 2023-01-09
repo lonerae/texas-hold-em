@@ -45,20 +45,30 @@ def calculatePower(allCards):
     for i in range (len(allCards)):
         allValues.append([])
         allValues[i] = allCards[i][0]
+    sorted(allValues)
     distinctValues = dict.fromkeys(set(allValues))
     
     for value in distinctValues.keys():
         distinctValues[value] = allValues.count(value)
     
+    # DEBUG
     print(distinctValues)
     print("\n")
 
+    power = 0
     for i in range(len(distinctValues)-1,-1,-1):
         if list(distinctValues.values())[i] == 4:
-            print("KARE")
-        elif list(distinctValues.values())[i] == 3:
-            print("TRIPLETA")
-        elif list(distinctValues.values())[i] == 2:
-            print("PAIR")
-        else:
-            print("HIGH")
+            comb = "4 * " + str(list(distinctValues.keys())[i])
+            power = 4
+        elif list(distinctValues.values())[i] == 3 and power < 3:
+            comb = "3 * " + str(list(distinctValues.keys())[i])
+            power = 3
+        elif list(distinctValues.values())[i] == 2 and power < 2:
+            comb = "2 * " + str(list(distinctValues.keys())[i])
+            power = 2
+        elif power < 1:
+            comb = "1 * " + str(list(distinctValues.keys())[i])
+            power = 1
+
+    print(comb)
+    print("\n")
