@@ -41,15 +41,24 @@ def calculatePower(allCards):
     for card in allCards:
         giveValue(card)
 
-    allCards = sorted(allCards)
     allValues = []
     for i in range (len(allCards)):
         allValues.append([])
         allValues[i] = allCards[i][0]
-    distinct = dict.fromkeys(set(allValues))
+    distinctValues = dict.fromkeys(set(allValues))
     
-    for value in distinct.keys():
-        distinct[value] = allValues.count(value)
+    for value in distinctValues.keys():
+        distinctValues[value] = allValues.count(value)
     
-    print(distinct)
+    print(distinctValues)
     print("\n")
+
+    for i in range(len(distinctValues)-1,-1,-1):
+        if list(distinctValues.values())[i] == 4:
+            print("KARE")
+        elif list(distinctValues.values())[i] == 3:
+            print("TRIPLETA")
+        elif list(distinctValues.values())[i] == 2:
+            print("PAIR")
+        else:
+            print("HIGH")
