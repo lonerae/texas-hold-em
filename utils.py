@@ -1,8 +1,8 @@
 import random
 
-FIGURES = ['J','Q','K']
-VALUES = list(range(1,11)) + FIGURES
-SIGNS = ['♡','♤','♧','♢']
+FIGURES = ['A','J','Q','K']
+VALUES = list(range(2,11)) + FIGURES
+SIGNS = ['♠','♣','♥','♦']
 
 CAPITAL = 1000
 
@@ -31,6 +31,18 @@ def serveCards(numberOfPlayers, deck):
         for p in range(0,numberOfPlayers):
             hand[p].append(deck.pop())
     return hand
+
+def printCards(cards):
+    for card in cards:
+        if (card[0] in FIGURES or card[0] < 10):
+            endChar = '  '
+        else:
+            endChar = ' '
+        print('[',card[0], sep = '', end = endChar)
+        if (card[1] in ['♥','♦']):
+            print('\x1B[31;1m',card[1],'\x1B[0m',']',sep='')
+        else:
+            print(card[1],']', sep = '')
 
 def instantiateBets(numberOfPlayers):
     playerBets = []

@@ -35,10 +35,14 @@ def main():
             if playerHands[currentPlayer]: # if player hasn't folded
                 
                 if revealedCards:
-                    print(revealedCards)
+                    print("=====REVEALED=====")
                     print("\n")
-                
-                print(playerHands[currentPlayer])
+                    printCards(revealedCards)
+                    print("\n")
+                    print("==================")
+                    print("\n")
+
+                printCards(playerHands[currentPlayer])
 
                 if firstBet:
                     print("Player",bigBlindPlayer+1,"you start the bets with",BIG_BLIND_BET)

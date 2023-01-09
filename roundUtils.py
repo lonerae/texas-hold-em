@@ -31,6 +31,8 @@ def giveValue(x):
         x[0] = 12
     elif x[0] == 'K':
         x[0] = 13
+    elif x[0] == 'A':
+        x[0] = 14
 
 def compare(x,y):
     return x[0]-y[0]
@@ -50,3 +52,4 @@ def calculatePower(allCards):
         distinct[value] = allValues.count(value)
     
     print(distinct)
+    print("\n")
