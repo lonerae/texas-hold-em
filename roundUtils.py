@@ -65,10 +65,15 @@ def calculatePower(allCards):
     power = 0
     global leadingValue
     leadingValue = 0
-    combination = findSameCards(allCards)
+    global combination
+
+    global flushFlag
+    flushFlag = False
+
+    findSameCards(allCards)
+    findSameSigns(allCards)
+    findConsecutiveCards(allCards)
     print(combination)
-    # find(consecutiveCards)
-    # find(sameSigns)
 
 def findSameCards(allCards):
     sameCards = OrderedDict()
@@ -78,6 +83,7 @@ def findSameCards(allCards):
         else:
             sameCards[str(allCards[i][0])] = 1
     
+    global combination
     global power
     global leadingValue
     pairCount = 0
@@ -87,32 +93,91 @@ def findSameCards(allCards):
         if sameCards[value] == 4 and power < POWERS['FOUR OF A KIND']:
             power = POWERS['FOUR OF A KIND']
             leadingValue = int(value)
-            comb = "FOUR OF A KIND WITH " + giveName(value)
+            combination = "FOUR OF A KIND WITH " + giveName(leadingValue)
         elif sameCards[value] == 3 and power < POWERS['THREE OF A KIND']:
             power = POWERS['THREE OF A KIND']
             leadingValue = int(value)
-            comb = "THREE OF A KIND WITH " + giveName(value)
+            combination = "THREE OF A KIND WITH " + giveName(leadingValue)
             
             fullHousePossibilityStrong = True
         elif sameCards[value] == 2: 
             if power < POWERS['PAIR']:
                 power = POWERS['PAIR']
                 leadingValue = int(value)
-                comb = "PAIR WITH " + giveName(value)
+                combination = "PAIR WITH " + giveName(leadingValue)
 
             pairCount += 1
             if pairCount > 1:
                 power = POWERS['TWO PAIR']
-                comb = "TWO PAIR WITH " + giveName(leadingValue)
+                combination = "TWO PAIR WITH " + giveName(leadingValue)
 
             fullHousePossibilityWeak = True
         elif power <= POWERS['HIGH'] and sameCards[value] == 1 and leadingValue < int(value):
             power = POWERS['HIGH']
             leadingValue = int(value)
-            comb = "HIGH CARD WITH " + giveName(value)
+            combination = "HIGH CARD WITH " + giveName(leadingValue)
 
     if fullHousePossibilityStrong and fullHousePossibilityWeak and power <= POWERS['FULL HOUSE']:
         power = POWERS['FULL HOUSE']
-        comb = "FULL HOUSE WITH " + giveName(leadingValue)
+        combination = "FULL HOUSE WITH " + giveName(leadingValue)
 
-    return comb
+def findSameSigns(allCards):
+    sameSigns = {}
+    for i in range(7):
+        if allCards[i][1] in sameSigns:
+            sameSigns[allCards[i][1]] += 1
+        else:
+            sameSigns[allCards[i][1]] = 1
+
+    global combination
+    global power
+    global leadingValue
+    global flushFlag
+    flushFlag = ""
+
+    for sign in sameSigns.keys():
+        if sameSigns[sign] > 4 and power < POWERS['FLUSH']:
+            power = POWERS['FLUSH']
+            combination = "FLUSH WITH " + sign
+            flushFlag = sign
+
+def findConsecutiveCards(allCards):
+    global combination
+    global power
+    global leadingValue
+    global flushFlag
+
+    distinct = []
+    for i in range(7):
+        if not allCards[i] in distinct:
+            distinct.append(allCards[i][0])
+
+    end = distinct[0]
+    tempLeadingValue = distinct[0]
+    count = 1
+    position = 0
+    consecutiveFlag = False
+    while position < len(distinct) - 1 and count < 5:
+        position += 1
+        if distinct[position] == end - 1:
+            count += 1
+        else:
+            count = 1
+            tempLeadingValue = distinct[position]
+        end = distinct[position]
+    
+    if count == 5:
+        consecutiveFlag = True
+
+    if power < POWERS['ROYAL FLUSH'] and consecutiveFlag and flushFlag and int(tempLeadingValue) == 14:
+        power = POWERS['ROYAL FLUSH']
+        leadingValue = tempLeadingValue
+        combination = "ROYAL FLUSH ON " + flushFlag
+    elif power < POWERS['STRAIGHT FLUSH'] and consecutiveFlag and flushFlag:
+        power = POWERS['STRAIGHT FLUSH']
+        leadingValue = tempLeadingValue
+        combination = "STRAIGHT FLUSH ON " + giveName(leadingValue) + flushFlag
+    elif power < POWERS['STRAIGHT'] and consecutiveFlag:
+        power = POWERS['STRAIGHT']
+        leadingValue = tempLeadingValue
+        combination = "STRAIGHT ON " + giveName(leadingValue)

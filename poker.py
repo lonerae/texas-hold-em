@@ -80,12 +80,15 @@ def main():
             else:
                 currentPlayer = (currentPlayer + 1) % numberOfPlayers
 
-            if foldPlayersNumber == numberOfPlayers -1:
+            if foldPlayersNumber == numberOfPlayers - 1:
                 break;    
 
-        for currentPlayer in range(numberOfPlayers):
-            if playerHands[currentPlayer]:
-                calculatePower(playerHands[currentPlayer] + revealedCards)
+        if round == 5:
+            for currentPlayer in range(numberOfPlayers):
+                if playerHands[currentPlayer]:
+                    calculatePower(playerHands[currentPlayer] + revealedCards)
+        else:
+            print("no cards are shown")
                 
         
         game += 1
