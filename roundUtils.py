@@ -1,3 +1,7 @@
+from collections import OrderedDict
+
+POWERS = {'HIGH':1,'PAIR':2,'TWO PAIR':3,'THREE OF A KIND':4,'STRAIGHT':5,'FLUSH':6,'FULL HOUSE':7,'FOUR OF A KIND':8,'STRAIGHT FLUSH':9,'ROYAL FLUSH':10}
+
 def reveal(deck, revealed, round):
     if (round == 1):
         deck.pop()
@@ -24,15 +28,28 @@ def endRound(numberOfPlayers, foldPlayersNumber, bet, playerBets, circle, lead, 
                 circle >= numberOfPlayers - foldPlayersNumber
             )
 
-def giveValue(x):
-    if x[0] == 'J':
-        x[0] = 11
-    elif x[0] == 'Q':
-        x[0] = 12
-    elif x[0] == 'K':
-        x[0] = 13
-    elif x[0] == 'A':
-        x[0] = 14
+def giveValue(card):
+    if card[0] == 'J':
+        card[0] = 11
+    elif card[0] == 'Q':
+        card[0] = 12
+    elif card[0] == 'K':
+        card[0] = 13
+    elif card[0] == 'A':
+        card[0] = 14
+
+def giveName(value):
+    if value == 11:
+        value = 'J'
+    elif value == 12:
+        value = 'Q'
+    elif value == 13:
+        value = 'K'
+    elif value == 14:
+        value = 'A'
+    else:
+        value = str(value)
+    return value
 
 def compare(x,y):
     return x[0]-y[0]
@@ -41,34 +58,61 @@ def calculatePower(allCards):
     for card in allCards:
         giveValue(card)
 
-    allValues = []
-    for i in range (len(allCards)):
-        allValues.append([])
-        allValues[i] = allCards[i][0]
-    sorted(allValues)
-    distinctValues = dict.fromkeys(set(allValues))
-    
-    for value in distinctValues.keys():
-        distinctValues[value] = allValues.count(value)
-    
-    # DEBUG
-    print(distinctValues)
-    print("\n")
+    allCards = sorted(allCards, key=lambda card: card[0], reverse=True)
+    print(allCards)
 
+    global power
     power = 0
-    for i in range(len(distinctValues)-1,-1,-1):
-        if list(distinctValues.values())[i] == 4:
-            comb = "4 * " + str(list(distinctValues.keys())[i])
-            power = 4
-        elif list(distinctValues.values())[i] == 3 and power < 3:
-            comb = "3 * " + str(list(distinctValues.keys())[i])
-            power = 3
-        elif list(distinctValues.values())[i] == 2 and power < 2:
-            comb = "2 * " + str(list(distinctValues.keys())[i])
-            power = 2
-        elif power < 1:
-            comb = "1 * " + str(list(distinctValues.keys())[i])
-            power = 1
+    global leadingValue
+    leadingValue = 0
+    combination = findSameCards(allCards)
+    print(combination)
+    # find(consecutiveCards)
+    # find(sameSigns)
 
-    print(comb)
-    print("\n")
+def findSameCards(allCards):
+    sameCards = OrderedDict()
+    for i in range(7):
+        if str(allCards[i][0]) in sameCards:
+            sameCards[str(allCards[i][0])] += 1
+        else:
+            sameCards[str(allCards[i][0])] = 1
+    
+    global power
+    global leadingValue
+    pairCount = 0
+    fullHousePossibilityStrong = False
+    fullHousePossibilityWeak = False
+    for value in sameCards.keys():
+        if sameCards[value] == 4 and power < POWERS['FOUR OF A KIND']:
+            power = POWERS['FOUR OF A KIND']
+            leadingValue = int(value)
+            comb = "FOUR OF A KIND WITH " + giveName(value)
+        elif sameCards[value] == 3 and power < POWERS['THREE OF A KIND']:
+            power = POWERS['THREE OF A KIND']
+            leadingValue = int(value)
+            comb = "THREE OF A KIND WITH " + giveName(value)
+            
+            fullHousePossibilityStrong = True
+        elif sameCards[value] == 2: 
+            if power < POWERS['PAIR']:
+                power = POWERS['PAIR']
+                leadingValue = int(value)
+                comb = "PAIR WITH " + giveName(value)
+
+            pairCount += 1
+            if pairCount > 1:
+                power = POWERS['TWO PAIR']
+                comb = "TWO PAIR WITH " + giveName(leadingValue)
+
+            fullHousePossibilityWeak = True
+        elif power <= POWERS['HIGH'] and sameCards[value] == 1 and leadingValue < int(value):
+            power = POWERS['HIGH']
+            leadingValue = int(value)
+            comb = "HIGH CARD WITH " + giveName(value)
+
+    if fullHousePossibilityStrong and fullHousePossibilityWeak and power <= POWERS['FULL HOUSE']:
+        power = POWERS['FULL HOUSE']
+        comb = "FULL HOUSE WITH " + giveName(leadingValue)
+
+    return comb
